@@ -56,15 +56,12 @@ def portfolio_value():
     portfolio_df = pd.merge(balances_df, market_df, on='asset', how='inner')
     portfolio_df['usd_value'] = ''
     btc_usd = market_df.loc[market_df['asset'] =='BTCUSDT']
-    print btc_usd
     i = 0
     for kv, row in portfolio_df.iterrows():
         total_holding = row['free'] + row['locked']
         usd = float(row['price']) * float(btc_usd['price'])
         portfolio_df['usd_value'][i] = usd * total_holding
         i += 1
-    print portfolio_df
-
-
+    return portfolio_df
 
 
