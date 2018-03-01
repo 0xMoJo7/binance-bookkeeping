@@ -70,5 +70,5 @@ def portfolio_to_csv():
     portfolio_df = portfolio_value()
     total_value = round(portfolio_df['usd_value'].sum(),2)
     stats = str(today) + ',' + str(total_value)
-    with open('history.csv', 'a') as f:
-        f.write(stats)
+    with open('history.csv', 'ab') as f:
+        f.write(stats + '\n')
