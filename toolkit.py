@@ -31,7 +31,11 @@ def account_balances_df():
     balances_df = pd.DataFrame(columns=['asset', 'free', 'locked'])
     account = rest_client.account()
     for balance in account.balances:
-        if float(balance.free) > 0.0 or float(balance.locked) > 0.0:
+        if balance.asset == 'BTC':
+            balances_df = balances_df.append({'asset': str(balance.asset) + 'USDT',
+                                              'free': float(balance.free),
+                                              'locked': float(balance.locked)}, ignore_index=True)
+        elif float(balance.free) > 0.0 or float(balance.locked) > 0.0:
             balances_df = balances_df.append({'asset': str(balance.asset) + 'BTC',
                                               'free': float(balance.free),
                                               'locked': float(balance.locked)}, ignore_index=True)
@@ -49,7 +53,12 @@ def trade_history():
                                                             'price': trade['price'],
                                                             'quantity' : trade['quantity']}, ignore_index=True)
         else:
-            pass
+            asset_trades_df = my_trades_by_pair('BTCUSDT')
+            for k, trade in asset_trades_df.iterrows():
+                trade_history_df = trade_history_df.append({'id' : trade['id'],
+                                                            'asset': row['asset'],
+                                                            'price': trade['price'],
+                                                            'quantity' : trade['quantity']}, ignore_index=True)
     return trade_history_df
 
 def portfolio_value():
@@ -60,15 +69,22 @@ def portfolio_value():
     btc_usd = market_df.loc[market_df['asset'] =='BTCUSDT']
     i = 0
     for kv, row in portfolio_df.iterrows():
-        total_holding = row['free'] + row['locked']
-        usd = float(row['price']) * float(btc_usd['price'])
-        portfolio_df['usd_value'][i] = usd * total_holding
-        i += 1
+        if row['asset'] != 'BTCUSDT':
+            total_holding = row['free'] + row['locked']
+            usd = float(row['price']) * float(btc_usd['price'])
+            portfolio_df['usd_value'][i] = usd * total_holding
+            i += 1
+        elif row['asset'] == 'BTCUSDT':
+            total_holding = row['free'] + row['locked']
+            usd = total_holding * float(btc_usd['price'])
+            portfolio_df['usd_value'][i] = usd
+            i += 1
     return portfolio_df
 
 def portfolio_to_csv():
     portfolio_df = portfolio_value()
     total_value = round(portfolio_df['usd_value'].sum(),2)
     stats = str(today) + ',' + str(total_value)
+    print stats
     with open('history.csv', 'ab') as f:
         f.write(stats + '\n')
