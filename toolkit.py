@@ -2,7 +2,9 @@ from client import BinanceRESTAPI, BinanceWebSocketAPI
 import config
 import json
 import pandas as pd
+from datetime import datetime
 
+today = datetime.now().strftime('%Y-%m-%d %H:%M')
 rest_client = BinanceRESTAPI(config.KEY, config.SECRET)
 ws_client = BinanceWebSocketAPI(config.KEY)
 
@@ -64,4 +66,9 @@ def portfolio_value():
         i += 1
     return portfolio_df
 
-
+def portfolio_to_csv():
+    portfolio_df = portfolio_value()
+    total_value = round(portfolio_df['usd_value'].sum(),2)
+    stats = str(today) + ',' + str(total_value)
+    with open('history.csv', 'a') as f:
+        f.write(stats)
