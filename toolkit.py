@@ -82,6 +82,7 @@ def portfolio_value():
     return portfolio_df
 
 def portfolio_to_csv():
+    today = datetime.now().strftime('%Y-%m-%d %H:%M')
     portfolio_df = portfolio_value()
     total_value = round(portfolio_df['usd_value'].sum(),2)
     stats = str(today) + ',' + str(total_value)
