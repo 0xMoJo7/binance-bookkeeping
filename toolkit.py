@@ -27,6 +27,22 @@ def my_trades_by_pair(pair):
                                     'quantity' : trade.qty}, ignore_index=True)
     return trade_df
 
+def place_limit_buy(pair, quantity, price):
+    buy_order = client.order_limit_buy(symbol=str(pair), quantity=str(quantity), price=str(price))
+    return buy_order
+
+def place_limit_sell(pair, quantity, price):
+    sell_order = client.order_limit_sell(symbol=str(pair), quantity=str(quantity), price=str(price))
+    return sell_order
+
+def check_order_status(pair, order_id):
+    order_status = client.get_order(symbol=str(pair), orderId=str(order_id))
+    return order_status
+
+def cancel_order(pair, order_id):
+    result = client.cancel_order(symbol=str(pair), orderId=str(order_id))
+    return result
+
 def account_balances_df():
     balances_df = pd.DataFrame(columns=['asset', 'free', 'locked'])
     account = rest_client.account()
@@ -86,6 +102,5 @@ def portfolio_to_csv():
     portfolio_df = portfolio_value()
     total_value = round(portfolio_df['usd_value'].sum(),2)
     stats = str(today) + ',' + str(total_value)
-    print stats
     with open('history.csv', 'ab') as f:
         f.write(stats + '\n')
